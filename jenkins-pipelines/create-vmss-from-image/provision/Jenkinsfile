@@ -15,14 +15,13 @@ pipeline {
         }
         stage('Terraform init') {
             steps {
-                sh 'docker run -t -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az sh ./terra.sh'
-                  
+                sh 'docker run -t -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az sh ./terra.sh'     
             }
         }
         stage('Terraform plan') {
             steps {
-                sh 'docker exec -t terraformtest.azurecr.io/terraform-az ls -l'
-                  
+                image.inside
+                sh 'docker run -t -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az ls -l'     
             }
         }
     }
