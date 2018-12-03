@@ -15,10 +15,8 @@ pipeline {
         }
         stage('Init parameters') {
             steps {
-                container('terraform-az') {
-                    echo  "Hello World!"
-                }
+                  sh "terraform init -input=false"
             }
         }
     }
-}
+} 
