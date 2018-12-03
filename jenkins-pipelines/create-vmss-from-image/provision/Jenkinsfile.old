@@ -7,7 +7,17 @@
 //image_name="vmimage01"
 //vmss_name="testvmss"
 //location="northeurope"
-node('azurevm') {
+
+podTemplate(label: 'azurevm', containers: [
+    containerTemplate(name: 'terraform-az', image: '<containerRegistry>/terraform-az', ttyEnabled: true, command: 'cat',envVars: [
+       secretEnvVar(key: 'ARM_CLIENT_ID', secretName: '<your-secret-name>', secretKey: 'clientid'),
+       secretEnvVar(key: 'ARM_CLIENT_SECRET', secretName: '<your-secret-name>', secretKey: 'clientsecret'),
+       secretEnvVar(key: 'ARM_TENANT_ID', secretName: '<your-secret-name>', secretKey: 'tenantid'),
+       secretEnvVar(key: 'ARM_SUBSCRIPTION_ID', secretName: '<your-secret-name>', secretKey: 'subscriptionid')
+        ]),
+  ]) 
+{
+    node('azurevm') {
         def gitRepo = 'https://github.com/<your-repo>/terraform-with-jenkins-samples'
         currentBuild.result = "SUCCESS"
 
@@ -77,5 +87,6 @@ node('azurevm') {
     catch (err) {
         currentBuild.result = "FAILURE"
         throw err
+    }
     }
 }
