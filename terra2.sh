@@ -4,6 +4,8 @@ env
 
 echo $PATH
 
+echo $SSH_CONNECTION
+
 echo "$image_name"
 
 echo "${image_name}"
