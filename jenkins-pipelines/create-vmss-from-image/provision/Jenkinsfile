@@ -3,26 +3,19 @@
 pipeline {
     agent { label 'cordfinance' } 
     stages { 
-        // stage('pull image') {
-        //     steps {
-        //         script {
-        //             docker.withRegistry('https://terraformtest.azurecr.io/terraform-az', 'test-terraform') {
-        //                 image = docker.image('terraform-az:latest')
-        //                 image.pull()
-        //             }
-        //         }
-        //     }
-        // }
-        stage('Init parameters') {
-            agent { 
-                docker {
-                    image 'terraformtest.azurecr.io/terraform-az'
-                    args '-v /home/cfadmin/workspace/test:/opt/workspace'
-                    registryUrl 'https://terraformtest.azurecr.io/terraform-az'
-                    registryCredentialsId 'test-terraform'
-                } 
-            }
+        stage('pull image') {
             steps {
+                script {
+                    docker.withRegistry('https://terraformtest.azurecr.io/terraform-az', 'test-terraform') {
+                        image = docker.image('terraform-az:latest')
+                        image.pull()
+                    }
+                }
+            }
+        }
+        stage('Init parameters') {
+            steps {
+                  sh 'docker run -v /home/cfadmin/workspace/test:/opt/workspace --name terra-az terraformtest.azurecr.io/terraform-az'
                   sh 'docker cp jenkins-pipelines terra-az:/'
                   sh 'docker run -t terraformtest.azurecr.io/terraform-az ls -l'
             }
