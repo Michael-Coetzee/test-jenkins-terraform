@@ -15,7 +15,7 @@ pipeline {
         }
         stage('Init parameters') {
             steps {
-                  sh 'docker ps -a'
+                  sh 'docker ps --no-trunc -aqf name=terraformtest.azurecr.io/terraform-az'
                    }
             }
         }
