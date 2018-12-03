@@ -20,7 +20,6 @@ pipeline {
         }
         stage('Terraform plan') {
             steps {
-                image.inside
                 sh 'docker run -t -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az ls -l'     
             }
         }
