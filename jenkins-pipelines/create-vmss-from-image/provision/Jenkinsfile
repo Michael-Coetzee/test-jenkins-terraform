@@ -1,12 +1,7 @@
 #!groovy​
 
 pipeline {
-    agent {
-        docker {
-            image 'https://terraformtest.azurecr.io/terraform-az'
-            args '-v /home/cfadmin/workspace/test:/opt/workspace'
-        } 
-    } 
+    agent { label 'cordfinance' } 
     stages { 
         // stage('pull image') {
         //     steps {
@@ -19,8 +14,16 @@ pipeline {
         //     }
         // }
         stage('Init parameters') {
+            agent { 
+                docker {
+                    image 'terraformtest.azurecr.io/terraform-az'
+                    label 'terra-az'
+                    args '-v /home/cfadmin/workspace/test:/opt/workspace'
+                    registryUrl 'https://terraformtest.azurecr.io/terraform-az'
+                    registryCredentialsId 'test-terraform'
+                } 
+            }
             steps {
-                  //   sh 'docker run -v /home/cfadmin/workspace/test:/opt/workspace --name terra-az terraformtest.azurecr.io/terraform-az'
                   sh 'docker cp jenkins-pipelines terra-az:/'
                   sh 'docker run -t terraformtest.azurecr.io/terraform-az ls -l'
             }
