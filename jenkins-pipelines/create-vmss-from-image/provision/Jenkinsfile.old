@@ -1,5 +1,3 @@
-#!groovy​
-
 // ******
 // Exptected parameters for HTTP request to pipeline
 // ******
@@ -9,41 +7,23 @@
 //image_name="vmimage01"
 //vmss_name="testvmss"
 //location="northeurope"
-
-// podTemplate(label: 'azurevm', containers: [
-//     containerTemplate(name: 'terraform-az', image: 'terraformtest.azurecr.io/terraform-az', ttyEnabled: true, command: 'cat',envVars: [
-//        secretEnvVar(key: 'ARM_CLIENT_ID', secretName: '4c7809e9-f9ca-4b35-b3d9-ea4cbb20b4d1', secretKey: 'clientid'),
-//        secretEnvVar(key: 'ARM_CLIENT_SECRET', secretName: '8a66dd1c-2d77-448f-861a-d43bdcca26ba', secretKey: 'clientsecret'),
-//        secretEnvVar(key: 'ARM_TENANT_ID', secretName: 'cb9e560e-c86f-41e9-a805-408c2410d408', secretKey: 'tenantid'),
-//        secretEnvVar(key: 'ARM_SUBSCRIPTION_ID', secretName: 'caee32e1-13f1-4cef-a4d3-39475cae21ce', secretKey: 'subscriptionid')
-//         ]),
-//   ]) 
-pipeline {
-    agent { label 'cordfinance' } 
-
-    stage('pull image'){
-        docker.withRegistry('terraformtest.azurecr.io/terraform-az', 'test-terraform') {
-            image = docker.image('terraform-az:latest')
-            image.pull()
-        }
-    }
-
-    def gitRepo = 'https://github.com/Michael-Coetzee/test-jenkins-terraform.git'
-    currentBuild.result = "SUCCESS"
+node('azurevm') {
+        def gitRepo = 'https://github.com/<your-repo>/terraform-with-jenkins-samples'
+        currentBuild.result = "SUCCESS"
 
     try {
-            stage('Init parameters'){
+         stage('Init parameters'){
             container('terraform-az') {
                 // Get SSH public for the VMSS from Jenkins
-                withCredentials([sshUserPrivateKey(credentialsId: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCzIRijXbYOpc6IJc4awANba9zqrIV5/wqgcODsMypzHUVtSm63xnei9ya1WHLRYIEzurlGyVlQBerf+s/zOb14xThkMw3Za+DecuVEuFR3mnFfHNcqZBHogWxIDHkLHfou643/h5rc8OGppF7QFkztUsj7lurLU3tPnHcsmmz5PW4vUrsMPcV2tJb0Lrde+63ODrJ8hAFdcIucqVE2pbeV8WPKl1oPM3GfzxgAYuQ4CGJBZaWRBbcKTvSgCacmle4zy/SPENmtZjMEvWXU8kQn/cIE+DYsCV9CaDTtQwhttABXDZw8vSJ/16ek/56xQ97fQq1huKcnTm/vBYgsnHp1 michael@cerberus', keyFileVariable: 'PUBLICKEY')]) {
+                withCredentials([sshUserPrivateKey(credentialsId: '<your-public-key-id>', keyFileVariable: 'PUBLICKEY')]) {
                         sh  """
                         mkdir /home/jenkins/.ssh
                         cat $PUBLICKEY >/home/jenkins/.ssh/id_rsa.pub
                         """
                     }     
             }
-            }
-            stage('Checkout'){
+         }
+         stage('Checkout'){
             container('terraform-az') {
                 // Get the terraform plan
                 git url: gitRepo, branch: 'master'
@@ -55,7 +35,7 @@ pipeline {
                 sh  """
                     cd terraform-plans/create-vmss-from-image
                     terraform init -input=false
-                    """
+                   """
             }
         }
         stage('Terraform plan'){
@@ -63,7 +43,7 @@ pipeline {
                 
                 // Get the VM image ID for the VMSS  
                 sh  '''
-                        az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+                     az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
                     '''
 
                 image_id = sh (
@@ -71,17 +51,17 @@ pipeline {
                             returnStdout: true).trim()
 
                 sh (script:"cd terraform-plans/create-vmss-from-image && terraform plan -out=tfplan -input=false -var 'terraform_resource_group='$vmss_rg -var 'terraform_vmss_name='$vmss_name -var 'terraform_azure_region='$location -var 'terraform_image_id='$image_id")
-                        
+                     
             }
         }
-        
+       
         stage('Terraform apply'){
             container('terraform-az') {
                 // Apply the plan
                 sh  """  
                     cd terraform-plans/create-vmss-from-image
                     terraform apply -input=false -auto-approve "tfplan"
-                    """
+                   """
             }
         }
         stage('Upload tfstate'){
