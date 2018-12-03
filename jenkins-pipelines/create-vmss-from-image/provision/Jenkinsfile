@@ -2,11 +2,12 @@
 
 pipeline {
     agent { label 'cordfinance' } 
-
-    stage('pull image'){
-        docker.withRegistry('terraformtest.azurecr.io/terraform-az', 'test-terraform') {
-            image = docker.image('terraform-az:latest')
-            image.pull()
+    stages { 
+        stage('pull image'){
+            docker.withRegistry('terraformtest.azurecr.io/terraform-az', 'test-terraform') {
+                image = docker.image('terraform-az:latest')
+                image.pull()
+            }
         }
     }
 }
