@@ -6,7 +6,7 @@ pipeline {
         stage('pull image'){
             steps {
                 script {
-                    docker.withRegistry('terraformtest.azurecr.io/terraform-az', 'test-terraform') {
+                    docker.withRegistry('https://terraformtest.azurecr.io/terraform-az', 'test-terraform') {
                         image = docker.image('terraform-az:latest')
                         image.pull()
                     }
