@@ -13,13 +13,23 @@ pipeline {
                 }
             }
         }
-        stage('Init parameters') {
+        stage ('Test') {
             steps {
-                sh 'docker run -t -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az terraform init -input=false'
-                  
-                   }
+                image.withRun('-v /home/cfadmin/workspace/test:/opt/workspace') { c ->
+                /* Wait until mysql service is up */
+                sh 'cd terraform-plans/create-vmss-from-image'
+                /* Run some tests which require MySQL */
+                sh 'ls -l'
+                }
             }
         }
+        // stage('Init parameters') {
+        //     steps {
+        //         sh 'docker run -t -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az terraform init -input=false'
+                  
+        //            }
+        //     }
+        // }
         // stage('Terraform plan'){
         //     steps {
         //         // Get the VM image ID for the VMSS  
