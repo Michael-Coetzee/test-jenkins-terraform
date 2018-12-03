@@ -7,7 +7,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://terraformtest.azurecr.io/terraform-az', 'test-terraform') {
-                        image = docker.image('terraform-az:latest')
+                        image = docker.image('terraformtest.azurecr.io/terraform-az')
                         image.pull()
                     }
                 }
