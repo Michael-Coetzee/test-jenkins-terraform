@@ -15,14 +15,8 @@ pipeline {
         }
         stage('Init parameters') {
             steps {
-                  sh 'docker run -t terraformtest.azurecr.io/terraform-az pwd'
-                  sh 'docker images'
-                  sh 'docker ps'
-                  sh 'docker run -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az'
-                  sh 'docker run -t terraformtest.azurecr.io/terraform-az ls -l'
-                  sh "docker run -t terraformtest.azurecr.io/terraform-az terraform init -input=false"
-                  sh 'docker run -t terraformtest.azurecr.io/terraform-az pwd'
-                  sh 'docker run -t terraformtest.azurecr.io/terraform-az ls -l'
+                  sh 'docker run -v /home/cfadmin/workspace/test:/opt/workspace --name terra-az terraformtest.azurecr.io/terraform-az'
+                  sh 'docker cp jenkins-pipelines terra-az:/'
             }
         }
         // stage('Terraform plan'){
