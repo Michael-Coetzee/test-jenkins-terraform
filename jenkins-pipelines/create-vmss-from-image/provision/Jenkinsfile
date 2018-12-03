@@ -1,8 +1,7 @@
 #!groovy​
 
 pipeline {
-    agent { 
-        label 'cordfinance'
+    agent {
         docker {
             image 'https://terraformtest.azurecr.io/terraform-az'
             args '-v /home/cfadmin/workspace/test:/opt/workspace'
