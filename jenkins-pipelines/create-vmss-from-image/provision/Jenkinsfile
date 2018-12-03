@@ -15,6 +15,8 @@ pipeline {
         }
         stage('Init parameters') {
             steps {
+                  sh 'docker images'
+                  sh 'docker ps'
                   sh 'docker cp /home/cfadmin/workspace/test/jenkins-pipelines terraformtest.azurecr.io/terraform-az'
                   sh 'docker run -t terraformtest.azurecr.io/terraform-az ls -l'
                   sh "docker run -t terraformtest.azurecr.io/terraform-az terraform init -input=false"
