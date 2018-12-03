@@ -15,7 +15,7 @@ pipeline {
         }
         stage('Init parameters') {
             steps {
-                sh 'docker run -t -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az bash -c cd terraform-plans/create-vmss-from-imag && ls -l && terraform init -input=false'
+                sh 'docker run -t -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az terraform init -input=false'
                   
                    }
             }
