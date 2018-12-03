@@ -3,7 +3,7 @@
 pipeline {
     agent { label 'cordfinance' } 
     stages { 
-        stage('pull image') {
+        stage('Pull image') {
             steps {
                 script {
                     docker.withRegistry('https://terraformtest.azurecr.io/terraform-az', 'test-terraform') {
@@ -13,36 +13,17 @@ pipeline {
                 }
             }
         }
-        // stage ('Testing') {
-        //     steps {
-        //         script {
-        //             image.withRun('-v /home/cfadmin/workspace/test:/opt/workspace') { c ->
-        //                 image.inside(
-        //                     sh 'cd terraform-plans/create-vmss-from-image; terraform init -input=false; ls -l'
-        //                 )
-        //             }
-        //         }
-        //     }
-        // }
-        stage('Init parameters') {
+        stage('Terraform init') {
             steps {
                 sh 'docker run -t -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az sh ./terra.sh'
                   
             }
         }
-        // stage('Terraform plan'){
-        //     steps {
-        //         // Get the VM image ID for the VMSS  
-        //         sh  '''
-        //                 az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-        //             '''
-
-        //         image_id = sh (
-        //                     script: "az image show -g $vm_images_rg -n $image_name --query '{VMName:id}' --out tsv",
-        //                     returnStdout: true).trim()
-
-        //         sh (script:"cd terraform-plans/create-vmss-from-image && terraform plan -out=tfplan -input=false -var 'terraform_resource_group='$vmss_rg -var 'terraform_vmss_name='$vmss_name -var 'terraform_azure_region='$location -var 'terraform_image_id='$image_id")   
-        //     }
-        // }
+        stage('Terraform plan') {
+            steps {
+                sh 'docker exec -t -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az ls -l'
+                  
+            }
+        }
     }
 }
