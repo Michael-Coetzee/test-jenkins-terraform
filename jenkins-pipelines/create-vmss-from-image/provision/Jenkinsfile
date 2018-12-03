@@ -17,7 +17,7 @@ pipeline {
             steps {
                 script {
                     image.withRun('-v /home/cfadmin/workspace/test:/opt/workspace') { c ->
-                    sh 'cd terraform-plans/create-vmss-from-image && terraform init -input=false && ls -l'
+                    sh 'cd terraform-plans/create-vmss-from-image; terraform init -input=false; ls -l'
                     }
                 }
             }
