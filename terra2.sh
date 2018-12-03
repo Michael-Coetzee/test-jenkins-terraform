@@ -1,5 +1,7 @@
 #!/bin/bash
 
+env
+
 echo "$image_name"
 
 echo "${image_name}"
