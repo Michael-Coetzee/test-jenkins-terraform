@@ -20,7 +20,7 @@ pipeline {
         }
         stage('Terraform plan') {
             steps {
-                sh 'docker run -t -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az ls -l'     
+                sh 'docker run -t -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az sh ./terra.sh'     
             }
         }
     }
