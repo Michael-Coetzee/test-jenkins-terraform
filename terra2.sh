@@ -1,9 +1,6 @@
 #!/bin/bash
 
-echo $PATH
-
-echo $SSH_CONNECTION
-
+echo "hello world!"
 
 #cd terraform-plans/create-vmss-from-image
 
