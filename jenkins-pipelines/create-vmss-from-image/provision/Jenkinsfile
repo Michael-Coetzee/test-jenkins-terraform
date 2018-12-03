@@ -21,11 +21,12 @@
 pipeline {
     agent { label 'cordfinance' } 
 
-    docker.withRegistry('terraformtest.azurecr.io/terraform-az', 'test-terraform') {
-        image = docker.image('terraform-az:latest')
-        image.pull()
+    stage('pull image'){
+        docker.withRegistry('terraformtest.azurecr.io/terraform-az', 'test-terraform') {
+            image = docker.image('terraform-az:latest')
+            image.pull()
+        }
     }
-
 
     def gitRepo = 'https://github.com/Michael-Coetzee/test-jenkins-terraform.git'
     currentBuild.result = "SUCCESS"
