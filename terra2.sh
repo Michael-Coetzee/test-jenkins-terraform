@@ -2,6 +2,8 @@
 
 env
 
+echo $PATH
+
 echo "$image_name"
 
 echo "${image_name}"
