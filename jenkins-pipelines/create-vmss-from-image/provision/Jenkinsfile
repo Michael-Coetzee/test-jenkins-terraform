@@ -1,3 +1,5 @@
+#!groovy​
+
 // ******
 // Exptected parameters for HTTP request to pipeline
 // ******
@@ -16,7 +18,14 @@
 //        secretEnvVar(key: 'ARM_SUBSCRIPTION_ID', secretName: 'caee32e1-13f1-4cef-a4d3-39475cae21ce', secretKey: 'subscriptionid')
 //         ]),
 //   ]) 
-node('azurevm') {
+node {
+    
+    docker.withRegistry('terraformtest.azurecr.io/terraform-az', 'test-terraform') {
+        image = docker.image('terraform-az:latest')
+        image.pull()
+    }
+
+
     def gitRepo = 'https://github.com/Michael-Coetzee/test-jenkins-terraform.git'
     currentBuild.result = "SUCCESS"
 
