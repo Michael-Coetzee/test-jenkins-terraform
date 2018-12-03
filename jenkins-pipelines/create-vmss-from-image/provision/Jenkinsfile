@@ -13,22 +13,24 @@ pipeline {
                 }
             }
         }
-        stage ('Testing') {
+        // stage ('Testing') {
+        //     steps {
+        //         script {
+        //             image.withRun('-v /home/cfadmin/workspace/test:/opt/workspace') { c ->
+        //                 image.inside(
+        //                     sh 'cd terraform-plans/create-vmss-from-image; terraform init -input=false; ls -l'
+        //                 )
+        //             }
+        //         }
+        //     }
+        // }
+        stage('Init parameters') {
             steps {
-                script {
-                    image.withRun('-v /home/cfadmin/workspace/test:/opt/workspace') { c ->
-                    sh 'cd terraform-plans/create-vmss-from-image; terraform init -input=false; ls -l'
-                    }
+                sh 'docker run -t -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az /bin/bash -c cd terraform-plans/create-vmss-from-image && /bin/bash -c terraform init -input=false'
+                  
                 }
             }
         }
-        // stage('Init parameters') {
-        //     steps {
-        //         sh 'docker run -t -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az terraform init -input=false'
-                  
-        //            }
-        //     }
-        // }
         // stage('Terraform plan'){
         //     steps {
         //         // Get the VM image ID for the VMSS  
