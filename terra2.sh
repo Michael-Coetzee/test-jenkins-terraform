@@ -1,10 +1,8 @@
 #!/bin/bash
 
-env
+echo "$image_name"
 
-echo "$vmss_rg"
-
-echo "${vmss_rg}"
+echo "${image_name}"
 
 #cd terraform-plans/create-vmss-from-image
 
