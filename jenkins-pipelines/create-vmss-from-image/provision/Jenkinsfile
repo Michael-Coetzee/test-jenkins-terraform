@@ -3,7 +3,7 @@
 pipeline {
     agent { label 'cordfinance' } 
     stages { 
-        stage('pull image'){
+        stage('pull image') {
             steps {
                 script {
                     docker.withRegistry('https://terraformtest.azurecr.io/terraform-az', 'test-terraform') {
@@ -11,6 +11,17 @@ pipeline {
                         image.pull()
                     }
                 }
+            }
+        }
+        stage('Init parameters'){
+            container('terraform-az') {
+                // Get SSH public for the VMSS from Jenkins
+                withCredentials([sshUserPrivateKey(credentialsId: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCzIRijXbYOpc6IJc4awANba9zqrIV5/wqgcODsMypzHUVtSm63xnei9ya1WHLRYIEzurlGyVlQBerf+s/zOb14xThkMw3Za+DecuVEuFR3mnFfHNcqZBHogWxIDHkLHfou643/h5rc8OGppF7QFkztUsj7lurLU3tPnHcsmmz5PW4vUrsMPcV2tJb0Lrde+63ODrJ8hAFdcIucqVE2pbeV8WPKl1oPM3GfzxgAYuQ4CGJBZaWRBbcKTvSgCacmle4zy/SPENmtZjMEvWXU8kQn/cIE+DYsCV9CaDTtQwhttABXDZw8vSJ/16ek/56xQ97fQq1huKcnTm/vBYgsnHp1 michael@cerberus', keyFileVariable: 'PUBLICKEY')]) {
+                        sh  """
+                        mkdir /home/jenkins/.ssh
+                        cat $PUBLICKEY >/home/jenkins/.ssh/id_rsa.pub
+                        """
+                    }     
             }
         }
     }
