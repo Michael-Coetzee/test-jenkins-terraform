@@ -20,6 +20,7 @@ pipeline {
         }
         stage('Terraform plan') {
             steps {
+                sh "env >> ./terra.sh"
                 sh "docker run -t -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az bash ./terra2.sh"
             }
         }

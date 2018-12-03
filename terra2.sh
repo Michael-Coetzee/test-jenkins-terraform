@@ -1,8 +1,10 @@
 #!/bin/bash
 
-echo "hello world!"
+echo $image_name
 
-cat /etc/environment
+echo "$image_name"
+
+echo "${image_name}"
 
 #cd terraform-plans/create-vmss-from-image
 
