@@ -17,7 +17,7 @@ pipeline {
             steps {
                   sh 'ls -l'
                   sh 'pwd'
-                  sh "docker run -i -t terraformtest.azurecr.io/terraform-az terraform init -input=false"
+                  sh "docker run -t terraformtest.azurecr.io/terraform-az terraform init -input=false"
             }
         }
     }
