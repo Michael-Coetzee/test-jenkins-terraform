@@ -18,8 +18,9 @@
 //        secretEnvVar(key: 'ARM_SUBSCRIPTION_ID', secretName: 'caee32e1-13f1-4cef-a4d3-39475cae21ce', secretKey: 'subscriptionid')
 //         ]),
 //   ]) 
-node {
-    agent { label 'cordfinance' } 
+pipeline {
+    agent { label 'cordfinance' 
+
     docker.withRegistry('terraformtest.azurecr.io/terraform-az', 'test-terraform') {
         image = docker.image('terraform-az:latest')
         image.pull()
@@ -29,71 +30,71 @@ node {
     def gitRepo = 'https://github.com/Michael-Coetzee/test-jenkins-terraform.git'
     currentBuild.result = "SUCCESS"
 
-try {
-        stage('Init parameters'){
-        container('terraform-az') {
-            // Get SSH public for the VMSS from Jenkins
-            withCredentials([sshUserPrivateKey(credentialsId: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCzIRijXbYOpc6IJc4awANba9zqrIV5/wqgcODsMypzHUVtSm63xnei9ya1WHLRYIEzurlGyVlQBerf+s/zOb14xThkMw3Za+DecuVEuFR3mnFfHNcqZBHogWxIDHkLHfou643/h5rc8OGppF7QFkztUsj7lurLU3tPnHcsmmz5PW4vUrsMPcV2tJb0Lrde+63ODrJ8hAFdcIucqVE2pbeV8WPKl1oPM3GfzxgAYuQ4CGJBZaWRBbcKTvSgCacmle4zy/SPENmtZjMEvWXU8kQn/cIE+DYsCV9CaDTtQwhttABXDZw8vSJ/16ek/56xQ97fQq1huKcnTm/vBYgsnHp1 michael@cerberus', keyFileVariable: 'PUBLICKEY')]) {
-                    sh  """
-                    mkdir /home/jenkins/.ssh
-                    cat $PUBLICKEY >/home/jenkins/.ssh/id_rsa.pub
+    try {
+            stage('Init parameters'){
+            container('terraform-az') {
+                // Get SSH public for the VMSS from Jenkins
+                withCredentials([sshUserPrivateKey(credentialsId: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCzIRijXbYOpc6IJc4awANba9zqrIV5/wqgcODsMypzHUVtSm63xnei9ya1WHLRYIEzurlGyVlQBerf+s/zOb14xThkMw3Za+DecuVEuFR3mnFfHNcqZBHogWxIDHkLHfou643/h5rc8OGppF7QFkztUsj7lurLU3tPnHcsmmz5PW4vUrsMPcV2tJb0Lrde+63ODrJ8hAFdcIucqVE2pbeV8WPKl1oPM3GfzxgAYuQ4CGJBZaWRBbcKTvSgCacmle4zy/SPENmtZjMEvWXU8kQn/cIE+DYsCV9CaDTtQwhttABXDZw8vSJ/16ek/56xQ97fQq1huKcnTm/vBYgsnHp1 michael@cerberus', keyFileVariable: 'PUBLICKEY')]) {
+                        sh  """
+                        mkdir /home/jenkins/.ssh
+                        cat $PUBLICKEY >/home/jenkins/.ssh/id_rsa.pub
+                        """
+                    }     
+            }
+            }
+            stage('Checkout'){
+            container('terraform-az') {
+                // Get the terraform plan
+                git url: gitRepo, branch: 'master'
+            }
+        }
+        stage('Terraform init'){
+            container('terraform-az') {
+                // Initialize the plan 
+                sh  """
+                    cd terraform-plans/create-vmss-from-image
+                    terraform init -input=false
                     """
-                }     
+            }
         }
-        }
-        stage('Checkout'){
-        container('terraform-az') {
-            // Get the terraform plan
-            git url: gitRepo, branch: 'master'
-        }
-    }
-    stage('Terraform init'){
-        container('terraform-az') {
-            // Initialize the plan 
-            sh  """
-                cd terraform-plans/create-vmss-from-image
-                terraform init -input=false
-                """
-        }
-    }
-    stage('Terraform plan'){
-        container('terraform-az') {  
-            
-            // Get the VM image ID for the VMSS  
-            sh  '''
-                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-                '''
+        stage('Terraform plan'){
+            container('terraform-az') {  
+                
+                // Get the VM image ID for the VMSS  
+                sh  '''
+                        az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+                    '''
 
-            image_id = sh (
-                        script: "az image show -g $vm_images_rg -n $image_name --query '{VMName:id}' --out tsv",
-                        returnStdout: true).trim()
+                image_id = sh (
+                            script: "az image show -g $vm_images_rg -n $image_name --query '{VMName:id}' --out tsv",
+                            returnStdout: true).trim()
 
-            sh (script:"cd terraform-plans/create-vmss-from-image && terraform plan -out=tfplan -input=false -var 'terraform_resource_group='$vmss_rg -var 'terraform_vmss_name='$vmss_name -var 'terraform_azure_region='$location -var 'terraform_image_id='$image_id")
-                    
+                sh (script:"cd terraform-plans/create-vmss-from-image && terraform plan -out=tfplan -input=false -var 'terraform_resource_group='$vmss_rg -var 'terraform_vmss_name='$vmss_name -var 'terraform_azure_region='$location -var 'terraform_image_id='$image_id")
+                        
+            }
+        }
+        
+        stage('Terraform apply'){
+            container('terraform-az') {
+                // Apply the plan
+                sh  """  
+                    cd terraform-plans/create-vmss-from-image
+                    terraform apply -input=false -auto-approve "tfplan"
+                    """
+            }
+        }
+        stage('Upload tfstate'){
+            container('terraform-az') {
+                // Upload the state of the plan to Azure Blob Storage
+                sh (script: "cd terraform-plans/create-vmss-from-image && tar -czvf ~/workspace/${env.JOB_NAME}/$deployment'.tar.gz' .")
+                sh "pwd"
+                azureUpload blobProperties: [cacheControl: '', contentEncoding: '', contentLanguage: '', contentType: '', detectContentType: true], containerName: '<container-name>', fileShareName: '', filesPath: '${deployment}.tar.gz', storageCredentialId: '<jenkins-storage-id>', storageType: 'blobstorage'
+                
+            }
         }
     }
-    
-    stage('Terraform apply'){
-        container('terraform-az') {
-            // Apply the plan
-            sh  """  
-                cd terraform-plans/create-vmss-from-image
-                terraform apply -input=false -auto-approve "tfplan"
-                """
-        }
+    catch (err) {
+        currentBuild.result = "FAILURE"
+        throw err
     }
-    stage('Upload tfstate'){
-        container('terraform-az') {
-            // Upload the state of the plan to Azure Blob Storage
-            sh (script: "cd terraform-plans/create-vmss-from-image && tar -czvf ~/workspace/${env.JOB_NAME}/$deployment'.tar.gz' .")
-            sh "pwd"
-            azureUpload blobProperties: [cacheControl: '', contentEncoding: '', contentLanguage: '', contentType: '', detectContentType: true], containerName: '<container-name>', fileShareName: '', filesPath: '${deployment}.tar.gz', storageCredentialId: '<jenkins-storage-id>', storageType: 'blobstorage'
-            
-        }
-    }
-}
-catch (err) {
-    currentBuild.result = "FAILURE"
-    throw err
-}
 }
