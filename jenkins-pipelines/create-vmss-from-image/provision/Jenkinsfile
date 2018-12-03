@@ -19,7 +19,7 @@
 //         ]),
 //   ]) 
 pipeline {
-    agent { label 'cordfinance' 
+    agent { label 'cordfinance' } 
 
     docker.withRegistry('terraformtest.azurecr.io/terraform-az', 'test-terraform') {
         image = docker.image('terraform-az:latest')
