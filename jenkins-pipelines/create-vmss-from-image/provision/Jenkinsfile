@@ -18,7 +18,7 @@ pipeline {
                   sh 'ls -l'
                   sh 'pwd'
                   sh "docker run -t terraformtest.azurecr.io/terraform-az terraform init -input=false"
-                  sh 'docker run -t terraformtest.azurecr.io/terraform-az ls -la'
+                  sh 'docker run -t terraformtest.azurecr.io/terraform-az ls -la /opt/workspace'
             }
         }
         // stage('Terraform plan'){
