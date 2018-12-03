@@ -17,7 +17,6 @@ pipeline {
             agent { 
                 docker {
                     image 'terraformtest.azurecr.io/terraform-az'
-                    label 'terra-az'
                     args '-v /home/cfadmin/workspace/test:/opt/workspace'
                     registryUrl 'https://terraformtest.azurecr.io/terraform-az'
                     registryCredentialsId 'test-terraform'
