@@ -22,7 +22,7 @@ pipeline {
             steps {
                 sh "export image_name"
                 sh "env"
-                sh "docker run -t -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az sh ./terra2.sh"
+                sh "docker run -t -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az bash -c ./terra2.sh"
             }
         }
     }
