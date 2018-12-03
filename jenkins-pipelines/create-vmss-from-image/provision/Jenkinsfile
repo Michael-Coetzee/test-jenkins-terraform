@@ -17,7 +17,7 @@ pipeline {
             steps {
                   sh 'docker images'
                   sh 'docker ps'
-                  sh 'docker cp /home/cfadmin/workspace/test/jenkins-pipelines terraformtest.azurecr.io/terraform-az'
+                  sh 'docker cp /home/cfadmin/workspace/test/jenkins-pipelines terraformtest.azurecr.io/terraform-az:/opt'
                   sh 'docker run -t terraformtest.azurecr.io/terraform-az ls -l'
                   sh "docker run -t terraformtest.azurecr.io/terraform-az terraform init -input=false"
                   sh 'docker run -t terraformtest.azurecr.io/terraform-az pwd'
