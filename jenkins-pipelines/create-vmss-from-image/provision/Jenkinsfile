@@ -8,17 +8,14 @@
 //vmss_name="testvmss"
 //location="northeurope"
 
-podTemplate(label: 'azurevm', containers: [
-    containerTemplate(name: 'terraform-az', image: 'terraformtest.azurecr.io/terraform-az', ttyEnabled: true, command: 'cat',envVars: [
-       secretEnvVar(key: 'ARM_CLIENT_ID', secretName: '4c7809e9-f9ca-4b35-b3d9-ea4cbb20b4d1', secretKey: 'clientid'),
-       secretEnvVar(key: 'ARM_CLIENT_SECRET', secretName: '8a66dd1c-2d77-448f-861a-d43bdcca26ba', secretKey: 'clientsecret'),
-       secretEnvVar(key: 'ARM_TENANT_ID', secretName: 'cb9e560e-c86f-41e9-a805-408c2410d408', secretKey: 'tenantid'),
-       secretEnvVar(key: 'ARM_SUBSCRIPTION_ID', secretName: 'caee32e1-13f1-4cef-a4d3-39475cae21ce', secretKey: 'subscriptionid')
-        ]),
-  ]) 
 {
+    agent {
+        docker {
+            image 'terraform-az'
+        }
+    }
     node('azurevm') {
-        def gitRepo = 'git@bitbucket.org:yellowtaildev/test-jenkins-terraform.git'
+        def gitRepo = 'https://github.com/Michael-Coetzee/test-jenkins-terraform.git'
         currentBuild.result = "SUCCESS"
 
     try {
