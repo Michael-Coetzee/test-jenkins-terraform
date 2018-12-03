@@ -22,6 +22,7 @@ pipeline {
             steps {
                 sh "touch environ.txt"
                 sh "env > environ.txt"
+                sh "cat environ.txt"
                 sh "docker run -t -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az bash ./terra2.sh"
             }
         }
