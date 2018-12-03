@@ -17,7 +17,7 @@ pipeline {
             steps {
                   sh 'docker run -v /home/cfadmin/workspace/test:/opt/workspace terraformtest.azurecr.io/terraform-az'
                   sh 'docker cp jenkins-pipelines terra-az:/'
-                  sh 'docker run -t terra-az ls -l'
+                  sh 'docker run -t terraformtest.azurecr.io/terraform-az ls -l'
                   sh 'docker rm terra-az'
                    }
             }
