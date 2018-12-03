@@ -15,7 +15,6 @@ pipeline {
         }
         stage('Init parameters') {
             steps {
-                  sh 'docker rm terra-az'
                   sh 'docker run -v /home/cfadmin/workspace/test:/opt/workspace --name terra-az terraformtest.azurecr.io/terraform-az'
                   sh 'docker cp jenkins-pipelines terra-az:/'
                   sh 'docker run -t terraformtest.azurecr.io/terraform-az ls -l'
