@@ -13,7 +13,7 @@ pipeline {
                 }
             }
         }
-        stage ('Test') {
+        stage ('Testing') {
             steps {
                 script {
                     image.withRun('-v /home/cfadmin/workspace/test:/opt/workspace') { c ->
