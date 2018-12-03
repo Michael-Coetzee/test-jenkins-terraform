@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source environ.txt
+
 echo $image_name
 
 echo "$image_name"
